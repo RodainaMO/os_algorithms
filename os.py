@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-
 import numpy as np
 
 # ==========================================
@@ -141,7 +140,7 @@ def first_fit_memory():
 
         # ======================
         # FINAL OUTPUT
-        # ======================
+        
         print("\nFinal Memory Layout:")
         external_frag = 0
 
@@ -223,8 +222,8 @@ def lru_page_replacement():
         print(f"Total Hits = {hits}")
 
         # =========================
-        # PIE CHART (your original)
-        # =========================
+        # PIE CHART 
+        
         plt.figure()
         plt.pie([faults, hits], labels=['Faults', 'Hits'], autopct='%1.1f%%')
         plt.title("LRU Performance")
@@ -232,7 +231,7 @@ def lru_page_replacement():
 
         # =========================
         # VISUAL FRAME EVOLUTION
-        # =========================
+       
         max_frames = capacity
         time_steps = len(frame_states)
 
