@@ -100,23 +100,35 @@ def round_robin_scheduling():
         print("Invalid input.")
 
 # ==========================================
-# first fit 
+# First Fit 
+
 
 def first_fit_memory():
-    import matplotlib.pyplot as plt
 
-    print("\n-- Memory Allocation: First Fit  --")
+    print("\n-- Memory Allocation: First Fit --")
+    print("1. Dynamic (with splitting)")
+    print("2. Static (no splitting)")
+    
+    mode = input("Choose mode: ")
+
     try:
         b_count = int(input("Enter number of memory blocks: "))
         blocks = []
 
+        # Initialize blocks with IDs
         for i in range(b_count):
             size = int(input(f"Block {i+1} size: "))
-            blocks.append({'size': size, 'pid': None})
+            blocks.append({
+                'id': f"B{i+1}",
+                'size': size,
+                'pid': None
+            })
 
         p_count = int(input("Enter number of processes: "))
 
         print("\nStep-by-step allocation:")
+
+        internal_frag = 0
 
         for i in range(p_count):
             p_size = int(input(f"Process {i+1} size: "))
@@ -124,14 +136,38 @@ def first_fit_memory():
 
             for j in range(len(blocks)):
                 if blocks[j]['pid'] is None and blocks[j]['size'] >= p_size:
-                    print(f"P{i+1} allocated in block of size {blocks[j]['size']}")
 
-                    remaining = blocks[j]['size'] - p_size
+                    print(f"P{i+1} allocated in {blocks[j]['id']} (size {blocks[j]['size']})")
 
-                    blocks[j] = {'size': p_size, 'pid': f"P{i+1}"}
+                    # ======================
+                    # DYNAMIC (SPLITTING)
+                    # ======================
+                    if mode == '1':
+                        remaining = blocks[j]['size'] - p_size
+                        original_id = blocks[j]['id']
 
-                    if remaining > 0:
-                        blocks.insert(j + 1, {'size': remaining, 'pid': None})
+                        # Assign process to first part
+                        blocks[j] = {
+                            'id': original_id + "A",
+                            'size': p_size,
+                            'pid': f"P{i+1}"
+                        }
+
+                        # Create remaining split block
+                        if remaining > 0:
+                            blocks.insert(j + 1, {
+                                'id': original_id + "B",
+                                'size': remaining,
+                                'pid': None
+                            })
+
+                    # ======================
+                    # STATIC (NO SPLITTING)
+                    # ======================
+                    elif mode == '2':
+                        waste = blocks[j]['size'] - p_size
+                        internal_frag += waste
+                        blocks[j]['pid'] = f"P{i+1}"
 
                     allocated = True
                     break
@@ -145,31 +181,54 @@ def first_fit_memory():
         print("\nFinal Memory Layout:")
         external_frag = 0
 
-        for i, b in enumerate(blocks):
+        for b in blocks:
             if b['pid']:
-                print(f"Block {i+1} -> {b['pid']} | Size = {b['size']}")
+                print(f"{b['id']} -> {b['pid']} | Size = {b['size']}")
             else:
-                print(f"Block {i+1} -> Free | Size = {b['size']}")
+                print(f"{b['id']} -> Free | Size = {b['size']}")
                 external_frag += b['size']
 
+        print(f"\nTotal Internal Fragmentation = {internal_frag}")
         print(f"Total External Fragmentation = {external_frag}")
 
         # ======================
-        # VISUALIZATION 
+        # VISUALIZATION
+        # ======================
+        
 
-        labels = [f"B{i+1}" for i in range(len(blocks))]
-        sizes = [b['size'] for b in blocks]
-        colors = ['tab:red' if b['pid'] else 'tab:green' for b in blocks]
+        # Adjust figure size based on block count to prevent crowding
+        fig_width = max(12, len(blocks) * 1.5)
+        fig, ax = plt.subplots(figsize=(fig_width, 4))
 
-        plt.figure(figsize=(10, 6))
-        plt.bar(labels, sizes, color=colors, edgecolor='black')
-
-        for i, b in enumerate(blocks):
+        current_pos = 0
+        for b in blocks:
+            color = 'tab:red' if b['pid'] else 'tab:green'
             label = b['pid'] if b['pid'] else "FREE"
-            plt.text(i, sizes[i]/2, label, ha='center', va='center', fontweight='bold')
+            
+            # Draw the block as a horizontal rectangle
+            ax.barh(0, b['size'], left=current_pos, color=color, edgecolor='black', height=0.5)
+            
+            # Place text in the middle of the block
+            # Only show text if the block is wide enough to be readable
+            if b['size'] > 0:
+                ax.text(current_pos + b['size']/2, 0, f"{b['id']}\n({label})\n{b['size']}", 
+                        ha='center', va='center', color='white', fontweight='bold', fontsize=9)
+            
+            current_pos += b['size']
 
-        plt.title("First Fit Memory Allocation (with Splitting)")
-        plt.ylabel("Memory Size")
+        # Formatting
+        title_mode = "Dynamic (Splitting)" if mode == '1' else "Static (No Splitting)"
+        ax.set_title(f"Memory Layout: {title_mode}", fontsize=14, pad=20)
+        ax.set_xlabel("Memory Address / Size")
+        ax.set_yticks([]) # Hide Y axis as it's a single bar
+        ax.set_xlim(0, current_pos) # Set limit to total memory size
+        
+        # Add a legend
+        from matplotlib.patches import Patch
+        legend_elements = [Patch(facecolor='tab:red', label='Allocated'),
+                           Patch(facecolor='tab:green', label='Free')]
+        ax.legend(handles=legend_elements, loc='upper right')
+
         plt.tight_layout()
         plt.show()
 
