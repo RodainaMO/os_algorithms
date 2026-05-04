@@ -5,9 +5,13 @@ Results of the Round Robin simulation showing process execution.
 ![Gantt Chart](Screenshot%202026-04-30%20054410.png)
 
 ## 2. Memory Allocation (First Fit)
-This visualization shows how memory blocks are allocated and split.
-![Memory Map](Screenshot%202026-05-04%181915.png)
+This visualization shows how memory blocks are allocated and split. 
 
+### Dynamic Allocation (Splitting)
+![Memory Map Dynamic](Screenshot%202026-05-04%20181915.png)
+
+### Static Allocation (No Splitting)
+![Memory Map Static](Screenshot%202026-05-04%20182012.png)
 
 ## 3. Page Replacement (LRU)
 The step-by-step frame evolution and the performance pie chart.
