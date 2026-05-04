@@ -6,7 +6,7 @@ Results of the Round Robin simulation showing process execution.
 
 ## 2. Memory Allocation (First Fit)
 This visualization shows how memory blocks are allocated and split.
-![Memory Map](Screenshot 2026-05-04 181915.png).
+![Memory Map](Screenshot%202026-05-04%181915.png)
 
 
 ## 3. Page Replacement (LRU)
